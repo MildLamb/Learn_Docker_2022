@@ -31,3 +31,7 @@ yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 ```bash
 systemctl start docker
 ```
+
+
+## Run干了什么
+![image](https://user-images.githubusercontent.com/92672384/181137453-a4d6d8c4-c932-411e-8b4c-4ac936389c69.png)
