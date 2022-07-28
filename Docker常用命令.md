@@ -82,6 +82,12 @@ root@cf275bef7c34:/#
 
 [root@VM-4-16-centos ~]# docker run -it --name=mildlamb ubuntu /bin/bash
 root@5838872347bf:/# 
+
+[root@VM-4-16-centos ~]# docker run -d redis:6.0.8 
+66e06d1c8c6d263171f58fd458d3bacc7dbd1d5eda0523f15cec3510f21940db
+[root@VM-4-16-centos ~]# docker ps
+CONTAINER ID   IMAGE         COMMAND                  CREATED         STATUS         PORTS      NAMES
+66e06d1c8c6d   redis:6.0.8   "docker-entrypoint.s…"   3 seconds ago   Up 3 seconds   6379/tcp   determined_margulis
 ```
 
 
@@ -104,6 +110,90 @@ cf275bef7c34   ubuntu    "/bin/bash"   6 minutes ago   Up 6 minutes             
 - docker stop 容器ID或容器名 ：停止容器
 - docker kill 容器ID或容器名 ：强制停止容器
 - docker rm 容器ID ：删除已经停止的容器，一次删除多个实例，docker rm -f $(docker ps -aq) 或者 docker ps -aq | xargs docker rm -f 
+
+- docker run -d 镜像id ：启动守护式容器
+- docker logs 容器id ：查看容器日志
+- docker top 容器id ：查看容器内运行的进程
+- docker inspect 容器id ：查看容器内部细节
+```bash
+[root@VM-4-16-centos ~]# docker ps
+CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS      NAMES
+66e06d1c8c6d   redis:6.0.8   "docker-entrypoint.s…"   12 minutes ago   Up 12 minutes   6379/tcp   determined_margulis
+[root@VM-4-16-centos ~]# docker logs 66e06d1c8c6d
+1:C 28 Jul 2022 00:39:01.472 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+1:C 28 Jul 2022 00:39:01.472 # Redis version=6.0.8, bits=64, commit=00000000, modified=0, pid=1, just started
+1:C 28 Jul 2022 00:39:01.472 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+1:M 28 Jul 2022 00:39:01.473 * Running mode=standalone, port=6379.
+1:M 28 Jul 2022 00:39:01.473 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+1:M 28 Jul 2022 00:39:01.473 # Server initialized
+1:M 28 Jul 2022 00:39:01.473 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+1:M 28 Jul 2022 00:39:01.473 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo madvise > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled (set to 'madvise' or 'never').
+1:M 28 Jul 2022 00:39:01.474 * Ready to accept connections
+[root@VM-4-16-centos ~]# docker top 66e06d1c8c6d
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+polkitd             31439               31420               0                   08:39               ?                   00:00:01            redis-server *:6379
+```
+
+- 进入正在运行的容器并以命令行交互
+  - docker exec -it 容器id bashShell
+  - docker attach 容器id
+  - exec 和 attach 区别
+    - attach 直接进入容器启动命令的终端，不会启动新的进程，用exit退出，会导致容器停止
+    - exec 是在容器中打开一个新的终端，并且可以启动新的进程，用exit退出，不会导致容器停止
+
+```bash
+[root@VM-4-16-centos ~]# docker exec -it 66e06d1c8c6d /bin/bash
+root@66e06d1c8c6d:/data# cd ..
+root@66e06d1c8c6d:/# 
+
+[root@VM-4-16-centos ~]# docker attach c31b23a7679b
+root@c31b23a7679b:/# exit
+exit
+[root@VM-4-16-centos ~]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
+
+
+- 容器内拷贝文件到主机
+  - docker cp 容器id:容器内路径 目的主机路径
+
+```bash
+[root@VM-4-16-centos local]# docker cp 30164aaf29e5:/tmp/mildlamb.txt /usr/local
+[root@VM-4-16-centos local]# ls
+bin  etc  games  include  lib  lib64  libexec  mildlamb.txt  qcloud  sa  sbin  share  src
+```
+
+- 导入或导出容器
+  - export : 导出容器的内容作为一个tar归档文件【对应import命令】
+  - import ：从tar包中的内容创建一个新的文件系统再导入为镜像【对应export】
+  - 命令
+    - docker export 容器id > 文件名.tar
+    - cat 文件名.tar | docker import - 镜像用户/镜像名:镜像版本号
+
+```bash
+# 容器备份
+[root@VM-4-16-centos temp]# docker export 30164aaf29e5 > ubuntu.tar
+[root@VM-4-16-centos temp]# ls
+mildlamb.txt  ubuntu.tar
+
+# 容器恢复
+[root@VM-4-16-centos temp]# cat ubuntu.tar | docker import - wildwolf/ubuntu:1.0
+sha256:556d27697771343c1d10491700427e513e5cc67be470b564805fb1e105207735
+[root@VM-4-16-centos temp]# docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+[root@VM-4-16-centos temp]# docker images
+REPOSITORY        TAG       IMAGE ID       CREATED          SIZE
+wildwolf/ubuntu   1.0       556d27697771   10 seconds ago   72.8MB
+ubuntu            latest    ba6acccedd29   9 months ago     72.8MB
+hello-world       latest    feb5d9fea6a5   10 months ago    13.3kB
+redis             6.0.8     16ecd2772934   21 months ago    104MB
+[root@VM-4-16-centos temp]# docker run -it 556d27697771 /bin/bash
+root@97a71244aef3:/# cd tmp
+root@97a71244aef3:/tmp# ls
+mildlamb.txt
+```
+
+
 
 
 ### 使用ubuntu 镜像，以交互模式启动一个容器，在容器内执行/bin/bash 命令
