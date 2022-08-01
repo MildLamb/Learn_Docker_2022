@@ -2,6 +2,7 @@
 
 # Linux查看防火墙，开放端口
 1. 查看防火墙状态
+
 systemctl status firewalld
 
 2. 如果不是显示active状态，需要打开防火墙
@@ -9,6 +10,7 @@ systemctl status firewalld
 systemctl start firewalld
 
 3.  查看所有已开放的临时端口（默认为空）
+
 firewall-cmd --list-ports
 
 ### 查看所有永久开放的端口（默认为空）
