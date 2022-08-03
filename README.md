@@ -1,5 +1,10 @@
 # Learn_Docker_2022
 
+# docker批量停止/开启命令
+```bash
+docker stop $(docker ps -a | grep "xxx" | awk '{print $1}')
+```
+
 # Linux查看防火墙，开放端口
 1. 查看防火墙状态
 
