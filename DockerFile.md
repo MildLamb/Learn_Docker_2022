@@ -37,3 +37,37 @@
 # 实操：Dockerfile编写增强centos镜像
 - 要求：centos7镜像具备 vim+ifconfig+jdk8
 - 编写：准备编写Dockerfile文件，D要大写
+
+```bash
+FROM centos:7
+MAINTAINER mildlamb<190@qq.com>
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+
+# 安装vim编辑器
+RUN yum -y install vim
+# 安装ifconfig命令查看网络IP
+RUN yum -y install net-tools
+# 安装 java8以及lib库
+RUN yum -y install glibc.i686
+RUN mkdir /usr/local/java
+# ADD 是相对路径jar. 把jdk压缩包添加到容器中，安装包必须要和Dockerfile文件同一位置
+ADD jdk-8u202-linux-x64.tar.gz /usr/local/java/
+# 配置java环境变量
+ENV JAVA_HOME /usr/local/java/jdk1.8.0_202
+ENV JRE_HOME $JAVA_HOME/jre
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib:$CLASSPATH
+ENV PATH $JAVA_HOME/bin:$PATH
+
+EXPOSE 80
+
+CMD echo $MYPATH
+CMD echo "success ....... ok"
+CMD /bin/bash
+```
+  
+- 构建 ：docker build -t 新镜像名字:TAG .  , 注意最后面有个 "."
+```bash
+[root@VM-4-16-centos myfile]# docker build -t centos-java8:1.0 .
+```
