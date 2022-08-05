@@ -52,15 +52,15 @@ RUN yum -y install net-tools
 # 安装 java8以及lib库
 RUN yum -y install glibc.i686
 RUN mkdir /usr/local/java
-# ADD 是相对路径jar. 把jdk压缩包添加到容器中，安装包必须要和Dockerfile文件同一位置
-ADD jdk-8u202-linux-x64.tar.gz /usr/local/java/
+# 将宿主机中的jdk压缩文件拷贝到docker镜像中
+ADD ./jdk-8u202-linux-x64.tar.gz /usr/local/java/
 # 配置java环境变量
 ENV JAVA_HOME /usr/local/java/jdk1.8.0_202
 ENV JRE_HOME $JAVA_HOME/jre
 ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib:$CLASSPATH
 ENV PATH $JAVA_HOME/bin:$PATH
 
-EXPOSE 80
+# EXPOSE 80
 
 CMD echo $MYPATH
 CMD echo "success ....... ok"
