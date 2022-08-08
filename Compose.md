@@ -16,3 +16,30 @@
   - docker-compose --version
 - 卸载：
   - sudo rm /usr/local/bin/docker-compose
+
+## Compose核心概念
+- 一文件 ：docker-compose.yml
+- 两要素 ：
+  - 服务：一个个应用容器实例，比如订单微服务，库存微服务等
+  - 工程：由一组关联的应用容器组成的一个完整业务单元，在docker-compose.yml文件中定义
+
+## Compose使用的三个步骤
+- 编写Dockerfile定义各个微服务应用并构建出对应的镜像文件
+- 使用docker-compose.yml定义一个完整业务单元，安排好整体应用中的各个容器服务
+- 最后，执行docker-compose up命令来启动并运行整个应用程序，完成一键部署上线
+
+## Compose常用命令
+- docker-compose -h : 查看帮助
+- docker-compose up ：启动所有docker-compose服务
+- docker-compose up -d ：启动所有docker-compose服务并后台运行
+- docker-compose down ：停止并删除容器，网络，卷，镜像
+- docker-compose exec yml中的服务id ：进入容器实例内部
+- docker-compose ps ：展示当前docker-compose编排过的运行的所有容器
+- docker-compose top ： 展示当前docker-compose编排过的容器进程
+
+- docker-compose logs yml里面的服务id ：查看容器输出日志
+- docker-compose config ：查看配置
+- docker-compose config -q ：查看配置，有问题才有输出
+- docker-compose restart ：重启服务
+- docker-compose start ：启动服务
+- docker-compose stop ：停止服务
