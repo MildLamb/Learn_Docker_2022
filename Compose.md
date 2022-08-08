@@ -43,3 +43,55 @@
 - docker-compose restart ：重启服务
 - docker-compose start ：启动服务
 - docker-compose stop ：停止服务
+
+## docker-compose.yml
+```bash
+vresion: "3"
+
+services:
+  microService:
+    image: mildlamb_docker:1.6
+    container_name: ms01
+    ports:
+      - "6001:6001"
+    volumes:
+      - /app/microService:/data
+    networks:
+      - mildlamb_net
+    depends_on:
+      - redis
+      - mysql
+  
+  redis:
+    image: redis:6.0.8
+    ports:
+      - "6379:6379"
+    volumes:
+      - /app/redis/redis.conf:/etc/redis/redis.conf
+      - /app/redis/data:/data
+    networks:
+      - mildlamb_net
+    command: redis-server /etc/redis/redis.conf
+    
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_DATABASE: "db2022"
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: "123456"
+    ports:
+      - "3306:3306"
+    volumes:
+      - /app/mysql/db:/var/lib/mysql
+      - /app/mysql/conf/my.cnf:/etc/my.cnf
+      - /app/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - mildlamb_net
+    command: --default-authentication-plugin=mysql_native_password # 解决外部无法访问
+    
+networks:
+  mildlamb_net:
+      
+```
